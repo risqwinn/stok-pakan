@@ -3,6 +3,7 @@ import { connection } from 'next/server'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { logout } from './login/actions'
+import Link from 'next/link'
 
 async function UserInfo() {
   await connection()
@@ -20,6 +21,7 @@ async function UserInfo() {
       <p>Peran: <b>{profile?.role ?? '(tidak terbaca)'}</b></p>
       <form action={logout} className="mt-4">
         <button className="rounded border px-3 py-1">Keluar</button>
+        <p className="mt-4"><Link href="/produk" className="underline">Lihat produk →</Link></p> <p className="mt-2"><Link href="/stok" className="underline">Catat stok →</Link></p>
       </form>
     </>
   )
@@ -33,4 +35,4 @@ export default function Home() {
       </Suspense>
     </main>
   )
-}
+} 
