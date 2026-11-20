@@ -18,20 +18,26 @@ export async function recordMovement(formData: FormData) {
     .from('products').select('sack_weight_g').eq('id', productId).single()
   if (!product) fail('Produk tidak ditemukan.')
 
+  const sacks = Math.max(0, Math.floor(num('sacks')))
   const qtyG = Math.round(
-    num('sacks') * product!.sack_weight_g + num('kg') * 1000 + num('grams')
+    sacks * product!.sack_weight_g + num('kg') * 1000 + num('grams')
   )
   if (!(qtyG > 0)) fail('Jumlah harus lebih dari 0.')
+
+  const isSale = type === 'out' && String(formData.get('reason')) !== 'other'
 
   const { error } = await supabase.from('stock_movements').insert({
     product_id: productId,
     type,
     qty_g: qtyG,
+    reason: isSale ? 'sale' : 'other',
+    sold_sacks: isSale ? sacks : 0,
     note: String(formData.get('note') || '').trim() || null,
   })
   if (error) fail(error.message)
 
   revalidatePath('/stok')
   revalidatePath('/produk')
+  revalidatePath('/dashboard')
   redirect('/stok?ok=1')
 }

@@ -1,11 +1,11 @@
-import Link from 'next/link'
-import { logout } from '@/app/login/actions'
+import Link from "next/link";
+import { logout } from "@/app/login/actions";
 
 const links = [
-  { href: '/', label: 'Beranda' },
-  { href: '/produk', label: 'Produk' },
-  { href: '/stok', label: 'Catat stok' },
-]
+  { href: "/dashboard", label: "Beranda" },
+  { href: "/produk", label: "Produk" },
+  { href: "/stok", label: "Catat stok" },
+];
 
 export default function Nav() {
   return (
@@ -14,8 +14,11 @@ export default function Nav() {
         <span className="mr-2 font-semibold text-green-800">Stok Pakan</span>
         <nav className="flex flex-1 gap-1 overflow-x-auto text-sm">
           {links.map((l) => (
-            <Link key={l.href} href={l.href}
-              className="whitespace-nowrap rounded px-3 py-2 hover:bg-green-50">
+            <Link
+              key={l.href}
+              href={l.href}
+              className="whitespace-nowrap rounded px-3 py-2 hover:bg-green-50"
+            >
               {l.label}
             </Link>
           ))}
@@ -25,5 +28,5 @@ export default function Nav() {
         </form>
       </div>
     </header>
-  )
+  );
 }
