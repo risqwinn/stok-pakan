@@ -5,10 +5,11 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { formatWeight } from '@/lib/units'
 import { recordMovement } from './actions'
+import Nav from '@/components/Nav'
 
 type Props = { searchParams: Promise<{ error?: string; ok?: string }> }
 
-const input = 'w-full rounded border p-2'
+const input = 'w-full rounded border p-3 text-base'
 
 async function Content({ searchParams }: Props) {
   await connection()
@@ -95,17 +96,16 @@ async function Content({ searchParams }: Props) {
 
 export default function StokPage({ searchParams }: Props) {
   return (
-    <main className="mx-auto max-w-2xl p-6">
+    <>
+      <Nav />
+    <main className="mx-auto w-full max-w-xl p-4 sm:p-6">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Catat stok</h1>
-        <nav className="flex gap-4 text-sm">
-          <Link href="/produk" className="underline">Produk</Link>
-          <Link href="/" className="underline">Beranda</Link>
-        </nav>
       </div>
       <Suspense fallback={<p>Memuat…</p>}>
         <Content searchParams={searchParams} />
       </Suspense>
     </main>
+    </>
   )
 }

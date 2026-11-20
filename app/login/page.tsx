@@ -11,7 +11,7 @@ async function ErrorMessage({ searchParams }: Props) {
 
 export default function LoginPage({ searchParams }: Props) {
   return (
-    <main className="mx-auto mt-24 max-w-sm p-4">
+    <main className="mx-auto mt-24 w-full max-w-sm p-4">
       <h1 className="mb-6 text-2xl font-semibold">Masuk</h1>
       <form action={login} className="flex flex-col gap-3">
         <input name="email" type="email" placeholder="Email" required
