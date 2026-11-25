@@ -5,6 +5,7 @@ const links = [
   { href: "/dashboard", label: "Beranda" },
   { href: "/produk", label: "Produk" },
   { href: "/stok", label: "Catat stok" },
+  { href: "/catatan", label: "Catatan harian" },
 ];
 
 export default function Nav() {

@@ -7,13 +7,19 @@ import { formatWeight, rupiah } from "@/lib/units";
 import { recordMovement } from "./actions";
 import Nav from "@/components/Nav";
 
-type Props = { searchParams: Promise<{ error?: string; ok?: string }> };
+type Props = {
+  searchParams: Promise<{ error?: string; ok?: string; filter?: string }>;
+};
 
 const input = "w-full rounded border p-3 text-base";
 
 async function Content({ searchParams }: Props) {
   await connection();
-  const { error, ok } = await searchParams;
+  const { error, ok, filter } = await searchParams;
+
+  // Validasi nilai filter agar aman (default: 'all')
+  const activeFilter =
+    filter === "in" || filter === "out" ? filter : "all";
 
   const supabase = await createClient();
   const {
@@ -34,7 +40,8 @@ async function Content({ searchParams }: Props) {
     .eq("is_active", true)
     .order("name");
 
-  const { data: history } = await supabase
+  // Bangun query riwayat stok dengan filter opsional
+  let historyQuery = supabase
     .from("stock_movements")
     .select(
       "id, type, qty_g, note, reason, revenue, cost, created_at, products(name, sack_weight_g)",
@@ -42,11 +49,23 @@ async function Content({ searchParams }: Props) {
     .order("created_at", { ascending: false })
     .limit(20);
 
+  if (activeFilter !== "all") {
+    historyQuery = historyQuery.eq("type", activeFilter);
+  }
+
+  const { data: history } = await historyQuery;
+
   const fmt = new Intl.DateTimeFormat("id-ID", {
     dateStyle: "short",
     timeStyle: "short",
     timeZone: "Asia/Jakarta",
   });
+
+  const tabs = [
+    { key: "all", label: "Semua", href: "/stok" },
+    { key: "in", label: "Barang masuk", href: "/stok?filter=in" },
+    { key: "out", label: "Barang keluar", href: "/stok?filter=out" },
+  ];
 
   return (
     <>
@@ -148,7 +167,30 @@ async function Content({ searchParams }: Props) {
         </button>
       </form>
 
-      <h2 className="mb-2 text-lg font-semibold">Riwayat terbaru</h2>
+      {/* Header & Tab Filter Riwayat */}
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-lg font-semibold">Riwayat terbaru</h2>
+        <div className="flex gap-1 rounded-lg border bg-gray-50 p-1 text-xs font-medium">
+          {tabs.map((tab) => {
+            const isActive = activeFilter === tab.key;
+            return (
+              <Link
+                key={tab.key}
+                href={tab.href}
+                scroll={false}
+                className={`rounded-md px-3 py-1.5 transition-colors ${
+                  isActive
+                    ? "bg-green-700 text-white shadow-xs"
+                    : "text-gray-600 hover:bg-white hover:text-gray-900"
+                }`}
+              >
+                {tab.label}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
       <ul className="divide-y rounded border text-sm">
         {history?.length ? (
           history.map((m) => {
@@ -185,7 +227,11 @@ async function Content({ searchParams }: Props) {
           })
         ) : (
           <li className="p-6 text-center text-gray-500">
-            Belum ada catatan stok.
+            {activeFilter === "in"
+              ? "Belum ada catatan barang masuk."
+              : activeFilter === "out"
+                ? "Belum ada catatan barang keluar."
+                : "Belum ada catatan stok."}
           </li>
         )}
       </ul>
